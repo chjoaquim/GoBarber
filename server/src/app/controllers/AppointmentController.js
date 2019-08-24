@@ -6,6 +6,9 @@ import File from '../models/File';
 
 class AppointmentController {
   async index(req, res) {
+    const { page = 1 } = req.query;
+    const pageLimit = 20;
+
     const appointments = await Appointment.findAll({
       where: {
         user_id: req.userId,
@@ -13,6 +16,8 @@ class AppointmentController {
       },
       order: ['date'],
       attributes: ['id', 'date'],
+      limit: pageLimit,
+      offset: (page - 1) * pageLimit,
       include: [
         {
           model: User,
