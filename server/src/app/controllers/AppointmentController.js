@@ -7,6 +7,9 @@ import User from '../models/User';
 import File from '../models/File';
 import Notification from '../schemas/Notification';
 
+import Queue from '../../lib/Queue';
+import CancellationMail from '../jobs/CancellationMail';
+
 class AppointmentController {
   async index(req, res) {
     const { page = 1 } = req.query;
@@ -18,7 +21,7 @@ class AppointmentController {
         canceled_at: null,
       },
       order: ['date'],
-      attributes: ['id', 'date'],
+      attributes: ['id', 'date', 'past', 'cancelable'],
       limit: pageLimit,
       offset: (page - 1) * pageLimit,
       include: [
@@ -143,11 +146,9 @@ class AppointmentController {
     appointment.canceled_at = new Date();
     await appointment.save();
 
-    /**
     await Queue.add(CancellationMail.key, {
       appointment,
     });
-    */
 
     return res.json(appointment);
   }
